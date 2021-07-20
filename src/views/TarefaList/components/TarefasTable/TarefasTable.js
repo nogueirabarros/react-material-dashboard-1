@@ -13,7 +13,12 @@ import {
   TableHead,
   TableRow,
   Typography,
+  IconButton 
 } from '@material-ui/core';
+
+import TimerIcon from '@material-ui/icons/Timer';
+import DoneAllIcon from '@material-ui/icons/DoneAll';
+import DeleteIcon from '@material-ui/icons/Delete';
 
 const useStyles = makeStyles(theme => ({
   root: {},
@@ -36,7 +41,7 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const TarefasTable = props => {
-  const { className, tarefas, ...rest } = props;
+  const { className, tarefas, alterarStatus,deleteAction, ...rest } = props;
 
   const classes = useStyles();
 
@@ -55,10 +60,37 @@ const TarefasTable = props => {
                   <TableCell>Descrição</TableCell>
                   <TableCell>Categoria</TableCell>
                   <TableCell>Status</TableCell>
+                  <TableCell></TableCell>
+                  <TableCell></TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
+                {tarefas.map(tarefa => {
+                  return(
+                    <TableRow key={tarefa.id}>
+                      <TableCell>{tarefa.id}</TableCell>
+                      <TableCell>{tarefa.descricao}</TableCell>
+                      <TableCell>{tarefa.categoria}</TableCell>
+                      <TableCell>{tarefa.done ? 'Feito':'Pendente'}</TableCell>
+                      <TableCell>
+                        <IconButton onClick={e => props.alterarStatus(tarefa.id)} color="secondary">
+                        {tarefa.done ? 
+                          (<DoneAllIcon/>)
+                          :
+                          (<TimerIcon/>)
+                        }
+                        </IconButton>
+                      </TableCell>
+                      <TableCell>
+                        <IconButton onClick={e => props.deleteAction(tarefa.id)}>
+                          <DeleteIcon/>
+                        </IconButton>
+                      </TableCell>                      
+                    </TableRow>
+                  )
+                })
 
+                }
               </TableBody>
             </Table>
           </div>

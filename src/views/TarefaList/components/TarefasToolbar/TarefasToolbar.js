@@ -29,7 +29,7 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const TarefasToolbar = props => {
-  const { className, ...rest } = props;
+  const { className, salvar, ...rest } = props;
 
   const [descricao, setDescricao] = useState('');
   const [categoria, setCategoria] = useState('');
@@ -38,7 +38,13 @@ const TarefasToolbar = props => {
 
   const submit = (event)=>{
     event.preventDefault();
-    console.log(`Valores: descrição - ${descricao}, categoria - ${categoria}`);
+    const tarefa = {
+      descricao: descricao,
+      categoria: categoria
+    }
+    props.salvar(tarefa);
+    setDescricao('')
+    setCategoria('')
   }
 
   return (
@@ -70,7 +76,7 @@ const TarefasToolbar = props => {
               <Select value={categoria} onChange={e => setCategoria(e.target.value)}>
                 <MenuItem value="">Selecione...</MenuItem>
                 <MenuItem value={"TRABALHO"}>Trabalho</MenuItem>
-                <MenuItem value={"ESTUDO"}>Estudos</MenuItem>
+                <MenuItem value={"ESTUDOS"}>Estudos</MenuItem>
                 <MenuItem value={"OUTROS"}>Outros</MenuItem>
               </Select>
             </FormControl>
