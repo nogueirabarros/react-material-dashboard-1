@@ -4,8 +4,11 @@ import { makeStyles } from '@material-ui/styles';
 import { TarefasToolbar, TarefasTable } from './components';
 import {Button, Dialog, DialogActions, DialogContent, DialogTitle} from '@material-ui/core';
 
-import axios from 'axios'
+import { bindActionCreators } from 'redux';
+import {connect} from 'react-redux'
+import {listar,salvar, deletar, alterarStatus} from '../../store/tarefasReducer'
 
+import {esconderMensagem} from '../../store/mensagensReducer'
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -18,100 +21,42 @@ const useStyles = makeStyles(theme => ({
 
 const API_URL = 'https://minhastarefas-api.herokuapp.com/tarefas'
 
-const TarefaList = () => {
+const TarefaList = (props) => {
   const classes = useStyles();
 
-  const [tarefas, setTarefas] = useState([]);
-  const [openDialog, setopenDialog] = useState(false);
-  const [mensagem, setMensagem] = useState('');
-
-  const salvar = (tarefa) =>{
-    axios.post(API_URL, tarefa, {
-        headers:{'x-tenant-id':localStorage.getItem('email_usuario_logado')}
-    }).then( response => {
-        const novaTerefa = response.data
-        setTarefas([...tarefas, novaTerefa])
-        setMensagem("Tarefa adicionada com sucesso");
-        setopenDialog(true)
-      }).catch(erro =>{
-      setMensagem("Ocorreu um erro");
-      setopenDialog(true)
-    })
-  }
-
-  const listarTarefas = () =>{
-    axios.get(API_URL, {
-      headers:{'x-tenant-id':localStorage.getItem('email_usuario_logado')}
-    }).then(response => {
-      const listaDeTarefas = response.data
-      setTarefas(listaDeTarefas)
-    }).catch(erro =>{
-      setMensagem("Ocorreu um erro", erro);
-      setopenDialog(true)
-    })
-  }
-
-  const alterarStatus = (id) =>{
-    axios.patch(`${API_URL}/${id}`,null,{
-      headers:{'x-tenant-id':localStorage.getItem('email_usuario_logado')}
-    }).then(response => {
-      const lista = [...tarefas]
-      lista.forEach(tarefa => {
-        if(tarefa.id === id){
-          tarefa.done = true
-        }
-      })
-      setTarefas(lista)
-      setMensagem("Tarefa atualizada");
-      setopenDialog(true)
-
-    }).catch(erro =>{
-      setMensagem("Ocorreu um erro");
-      setopenDialog(true)
-    })
-  }
-
-  const deletar = (id) =>{
-    axios.delete(`${API_URL}/${id}`,{
-      headers:{'x-tenant-id':localStorage.getItem('email_usuario_logado')}
-    })
-    .then(response => {
-      const lista = tarefas.filter(tarefa => tarefa.id !== id)
-      setTarefas(lista)
-      setMensagem("Tarefa removida");
-      setopenDialog(true)
-
-    }).catch(erro =>{
-      setMensagem("Ocorreu um erro");
-      setopenDialog(true)
-    })
-  }
-
-
   useEffect(()=>{
-    listarTarefas()
+    props.listar()
   },[])
 
   return (
     <div className={classes.root}>
-      <TarefasToolbar salvar={salvar} />
-      <div className={classes.content}>
+      <TarefasToolbar salvar={props.salvar} />
+      <div className={classes.content}> 
         <TarefasTable 
-        alterarStatus={alterarStatus} 
-        deleteAction={deletar}
-        tarefas={tarefas} />
+        alterarStatus={props.alterarStatus} 
+        deleteAction={props.deletar}
+        tarefas={props.tarefas} />
       </div>
-      <Dialog open={openDialog} onClose={e => setopenDialog(false)}>
+      <Dialog open={props.openDialog} onClose={props.esconderMensagem}>
         <DialogTitle>Atenção</DialogTitle>
         <DialogContent>
-          {mensagem}
+          {props.mensagem}
         </DialogContent>
         <DialogActions>
-          <Button onClick={e=>setopenDialog(false)}>Fechar</Button>
+          <Button onClick={props.esconderMensagem}>Fechar</Button>
         </DialogActions>
       </Dialog>
     </div>
   );
 };
 
-export default TarefaList;
+const mapStateToProps = state =>({
+   tarefas:state.tarefas.tarefas,
+   mensagem:state.mensagens.mensagem,
+   openDialog: state.mensagens.mostrarMensagem
+})
+
+const mapDispatchToProps = dispatch =>
+bindActionCreators({listar, salvar, deletar, alterarStatus, esconderMensagem}, dispatch)
+
+export default connect(mapStateToProps, mapDispatchToProps)(TarefaList);

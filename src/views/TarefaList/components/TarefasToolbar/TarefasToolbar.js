@@ -4,8 +4,6 @@ import clsx from 'clsx';
 import { makeStyles } from '@material-ui/styles';
 import { Button, TextField, Grid, Select, MenuItem, FormControl, InputLabel } from '@material-ui/core';
 
-import { SearchInput } from 'components';
-
 const useStyles = makeStyles(theme => ({
   root: {},
   row: {
